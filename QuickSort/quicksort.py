@@ -17,6 +17,8 @@ def subList(list, start, end=-1):
     return sublist
 
 def indexOfMedOf3(list):
+    comparisonCount = 0
+
     # select 3 random elements
     medianElements = []
     medianElements.append(list[random.randint(0, len(list) - 1)])
@@ -25,25 +27,31 @@ def indexOfMedOf3(list):
 
     # sort the median element list
     #you should increment the comparisonCount vars by 2 every time this is run
+    comparisonCount += 2
     while (not isSorted(medianElements)):
         for i in range(1, 3):
+            comparisonCount += 1
             if (medianElements[i - 1] > medianElements[i]):
                 swap(medianElements, i - 1, i)
 
+        comparisonCount += 2
+
     return list.index(medianElements[1])
+
 
 def partitionHalf(list):
     # when the main list has been successfully partitioned
     # partition one half of the list
     # if there are no elements on this side
-    if (list is None):
+    if (list is None or list == []):
         list = []
         return 0
     # if there are less than 3 elements on this side, just use the index of the first element
     elif (len(list) < 3):
-        return partition(list, 0) + 1
+        return partition(list, len(list) - 1) + 1
     # otherwise, use the median of 3
     else:
+
         return partition(list, indexOfMedOf3(list)) + 1
 
 """
@@ -59,26 +67,26 @@ This may add 1 to n inside the log(n) portion of the O(n) notation,
 or slightly increase the time complexity, but it's how my professor wants it, so it is what it is
 """
 def partition(list, pivotIndex):
-
     """
     #for debugging
     print("list being partitioned: " + str(list))
     print("pivot = " + str(list[pivotIndex]))
+    print("")
     """
+
     #termination condition
     #if the list is broken, empty, or sorted, return the comparison count
-    if (list is None or list == [] or isSorted(list)):
+    if (list is None or list == []):
         return 0
 
     pivot = list[pivotIndex]
     comparisonCount = 0
 
     #termination condition
-    comparisonCount += 1
     if (len(list) < 3):
         #if there are only 2 elements in the list, put them in the right order
-        comparisonCount += 1
         if (len(list) == 2):
+            comparisonCount += 1
             if (list[0] > list[1]):
                 swap(list, 0, 1)
             return comparisonCount
@@ -98,6 +106,7 @@ def partition(list, pivotIndex):
         # while the start is before the end index
         while (start < end):
             #if the element currently being read is greater than the pivot
+
             """
             #for debugging
             print("pivot = " + str(pivot))
@@ -105,6 +114,7 @@ def partition(list, pivotIndex):
             print("end = " + str(partitionedList[end]))
             print("list before partitioning: " + str(partitionedList))
             """
+
             #if the current item being read is greater than or equal to the pivot
             comparisonCount += 1
             if (partitionedList[start] >= pivot):
@@ -113,15 +123,23 @@ def partition(list, pivotIndex):
                 if (partitionedList[end] < pivot):
                     #swap it with the current element in the list being read
                     swap(partitionedList, start, end)
-
+                    #go to the next element
+                    start += 1
+                    # decrement the end index
+                    end -= 1
+                #otherwise, if it should be where it is, leave it there
+                else:
+                    # decrement the end index
+                    end -= 1
+                """
+                #otherwise, if it is where it should be, move down the list
+                else:
+                    end -= 1
+                """
                 #you can't do this, it's cheating
                 #partitionedList.append(partitionedList.pop(start))
                 #it automatically moves to the next element when it removes an element
 
-                    start += 1
-
-                #decrement the end index
-                end -= 1
 
             #otherwise, if the current element is less than the pivot (ie where it should be)
             else:
@@ -142,6 +160,7 @@ def partition(list, pivotIndex):
         print("end = " + str(partitionedList[end]))
         print("list after partitioning: " + str(partitionedList))
         """
+
         #when the main list has been successfully partitioned
 
         #partition the left half of the list from index 0
@@ -155,22 +174,28 @@ def partition(list, pivotIndex):
         #to the end of the list
         #for debugging
         #print("partitioning right portion")
-        right = subList(partitionedList, partitionIndex)
+        #the right should be all elements greater than or equal to the pivot that aren't the pivot
+        right = subList(partitionedList, partitionIndex, len(list) - 1)
         comparisonCount += partitionHalf(right)
 
-        #put both partitioned halves together and set list
-        combinedList = left + right
+        #put both partitioned halves and the pivot together and set list
+        combinedList = left + [list[-1]] + right
+        #print("original list: " + str(list))
+        #print("combined list: " + str(combinedList))
         for i in range(len(list)):
             #for debugging
             #print(str(i))
             list[i] = combinedList[i]
+
         return comparisonCount
 
 def quicksort(list, PIVOT_FIRST=True):
     #partition using the first element
     if (PIVOT_FIRST):
         #partition and swap stuff recursively
-        return partition(list, 0)
+        if (list[0] > list[-1]):
+            swap(list, 0, -1)
+        return partition(list, len(list) - 1) + 1#0, len(list), len(list))
 
     #partition using the median of 3
     else:
@@ -180,13 +205,18 @@ def quicksort(list, PIVOT_FIRST=True):
             if (len(list) == 2):
                 if (list[0] > list[1]):
                     swap(list, 0, 1)
-                return 3
-            return 2
+                return 1
+            return 0
 
         # otherwise, if there are more than 2 elements in the list
         else:
             #partition and swap stuff recursively
-            return partition(list, indexOfMedOf3(list)) + 1
+            medPivot = indexOfMedOf3(list)
+            if (list[medPivot] > list[-1]):
+                swap(list, medPivot, -1)
+                #swap(medPivot, -1)
+
+            return partition(list, len(list) - 1) + 1#0, len(list), len(list)) + 1
 
 
 def isSorted(list):
