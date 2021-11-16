@@ -3,7 +3,6 @@ class Vertex:
         self.id = key
         #a dictionary of connected vertice objects and their respective weights
         self.connectedTo = {}
-        self.distance = None
 
     def addNeighbor(self,nbr,weight=0):
         self.connectedTo[nbr] = weight
@@ -19,9 +18,6 @@ class Vertex:
 
     def getWeight(self,nbr):
         return self.connectedTo[nbr]
-
-    def getDistance(self):
-        return self.distance
 
     def setDistance(self,nbr):
         self.distance = nbr
