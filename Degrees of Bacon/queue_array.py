@@ -40,7 +40,7 @@ class QueueArray:
             # Increment the num_items value
             self.num_items += 1
 
-            print("Enqueued array: " + str(self.items))
+            #print("Enqueued array: " + str(self.items))
         elif (0 < self.num_items and self.num_items < self.capacity):
             self.items[self.end] = item
 
@@ -54,7 +54,7 @@ class QueueArray:
             # Increment the num_items value
             self.num_items += 1
 
-            print("Enqueued array: " + str(self.items))
+            #print("Enqueued array: " + str(self.items))
         else:
             raise IndexError("Queue was full, item \'" + str(item) + "\' was not enqueued.")
 
@@ -80,7 +80,7 @@ class QueueArray:
             # Decrement the num_items value
             self.num_items -= 1
 
-            print("Dequeued array: " + str(self.items))
+            #print("Dequeued array: " + str(self.items))
             return front
 
     def peek(self):

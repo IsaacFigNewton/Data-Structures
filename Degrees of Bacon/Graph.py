@@ -52,7 +52,7 @@ class Graph:
     def getPath(self, pathInfoDict, vertKey, startVertex):
         orphanVertexPhrase = "oh no, cringe"
         previousVert = pathInfoDict.get(vertKey)[1]
-        print("previousVert: " + str(previousVert))
+        #print("previousVert: " + str(previousVert))
 
         #termination condition
         #if there is no previous node linked to the current one
@@ -66,7 +66,7 @@ class Graph:
         else:
             #if there is no previousVert, it means that there's no path to it from startVert
             if (previousVert is None):
-                print("No path was found between vertex " + str(startVertex.getId()) + " and vertex " + str(vertKey))
+                #print("No path was found between vertex " + str(startVertex.getId()) + " and vertex " + str(vertKey))
                 return [orphanVertexPhrase]#None]
             else:
                 #get the path of all nodes starting at the startingVertex before the current one
@@ -83,16 +83,15 @@ class Graph:
         #when all the vertices accessible from the startingNode have been chequed,
         #create a 2D list of paths
         shortestPaths = {}
-        print(str(shortestPaths))
 
         #create the lists of vertex objects that make up the path
         for vertKey in self.vertList:
-            print("current vertex: " + str(vertKey))
-            print("shortest paths: " + str(shortestPaths))
+            #print("current vertex: " + str(vertKey))
+            #print("shortest paths: " + str(shortestPaths))
             #the .append is to add the current vertice to the end of the list
             shortestPaths[vertKey] = self.getPath(pathInfoDict, vertKey, startVertex) + [self.getVertex(vertKey)]
 
-            print("")
+            #print("")
 
         return shortestPaths
 
@@ -108,9 +107,9 @@ class Graph:
         #initialize the queue
         queue = queue_array.QueueArray(self.numVertices)
 
-        print(str(pathInfoDict))
+        #print(str(pathInfoDict))
         #the starting vertex has a path to itself of length 0
-        pathInfoDict[startVertex] = (True, startVertex, 0)
+        pathInfoDict[startVertex.getId()] = (True, startVertex, 0)
 
         #add the starting vertex to the queue
         queue.enqueue(startVertex)
@@ -122,12 +121,12 @@ class Graph:
 
             #checked state is updated to True, to indicate that it has/is being checked
             # and shouldn't be re-added to the queue, everything else in the dictionary is left the same
-            pathInfoDict[currentVertex] = (True, pathInfoDict[currentVertex][1], pathInfoDict[currentVertex][2])
-            print(str(pathInfoDict))
+            pathInfoDict[currentVertex.getId()] = (True, pathInfoDict[currentVertex.getId()][1], pathInfoDict[currentVertex.getId()][2])
+            #print(str(pathInfoDict))
 
             #check all the connections of the starting vertex
             for nextVert in currentVertex.connectedTo:
-                nextVertPathInfo = pathInfoDict.get(nextVert)
+                nextVertPathInfo = pathInfoDict.get(nextVert.getId())
                 #if the next vertice hasn't been checked already
                 if (nextVertPathInfo != None and not nextVertPathInfo[0]):
                     #add nextVert to the queue
@@ -135,7 +134,7 @@ class Graph:
 
                 #the combined weight of the path from nextVert to the currentVertex and
                 # that of the currentVertex
-                newCost = currentVertex.connectedTo.get(nextVert) + pathInfoDict[currentVertex][2]
+                newCost = currentVertex.connectedTo.get(nextVert) + pathInfoDict[currentVertex.getId()][2]
                 oldCost = 0
                 if (nextVertPathInfo != None):
                     oldCost = nextVertPathInfo[2]
@@ -145,10 +144,11 @@ class Graph:
                     #update pathInfoDict path info for the nodes found;
                     #previous vertice is set to currentVertex
                     # and path cost is updated from oldCost value to newCost
-                    pathInfoDict[nextVert] = (nextVertPathInfo[0], currentVertex, newCost)
+                    pathInfoDict[nextVert.getId()] = (nextVertPathInfo[0], currentVertex, newCost)
 
-        print("")
-        self.printVertInfo(pathInfoDict)
+        #print("")
+        #for some reason this isn't printing the path info for any vertices save for the first one
+        #self.printVertInfo(pathInfoDict)
 
         """
         return a list of formatted like [(vertex object,
@@ -158,11 +158,17 @@ class Graph:
         """
         shortestPaths = self.getShortestPaths(pathInfoDict, startVertex)
         #remove the first vertex from the vertex path list for the startVertex to make the output match the specs
-        print(str(shortestPaths))
         shortestPaths[0] = []
-        print(str(shortestPaths))
 
-        return [(self.getVertex(vertexIndex), shortestPaths[vertexIndex], pathInfoDict[vertexIndex][2]) for vertexIndex in self.vertList]
+        return [(self.getVertex(vertKey), shortestPaths[vertKey], pathInfoDict[vertKey][2]) for vertKey in self.vertList]
+
+    def getEntryFromPathsListWithKey(self, pathList, key):
+        for entry in pathList:
+            if (entry[0].getId() == key):
+                return entry
+
+        print("The entry with the key provided wasn't found in the path list")
+        return
 
     def printEdges(self):
         #for every vertex in the graph
