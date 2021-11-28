@@ -42,26 +42,65 @@ def create_huff_tree(freq_list):
     #create a priority queue with the ASCII characters and their frequencies
     charFreqPQ = binary_heap.BinaryHeap()
     for charValue in range(len(freq_list)):
-        #add stuff to the PQ as a huffman nodewith its respetive key (frequency) and value (char value)
+        #add stuff to the PQ as a huffman nodewith its respective key (frequency) and value (char value)
         charFreqPQ.enqueue(huffmanNode(freq_list, charValue))
 
     #iterate until there's only there's only 1 node left in the priority queue, aka, if the BST has finished being created
-    while (priority queue size >= 2 nodes):
+    while (charFreqPQ.size >= 2 nodes):
         #remove the 2 least frequent characters from the priority queue
-        char0 = charFreqPQ.dequeue
-        char1 = charFreqPQ.dequeue
+        node0 = charFreqPQ.dequeue()
+        node1 = charFreqPQ.dequeue()
 
         #create a parent node with a value equal to the sum of the frequencies of the 2 least frequent characters and make it the root of a new BST of the 3 nodes
-        #the parent should also have the minimum of the left and right character representations stored in it in order toresolve ties in the comes_before() function.
+        adoptiveParent = node0.key + node1.key
+        
+        #the parent should also have the minimum of the left and right character representations stored in it in order to resolve ties in the comes_before() function.
+        adoptiveParent.minLeft = node0.minLeft
+        adoptiveParent.minRight = node1.minLeft
+        
         #since the value of the key for char0 should be smaller to or equal to char1,
-        #make char0 the left node and char 1 the right node
-
+        #   make char0 the left node and char 1 the right node
+        adoptiveParent.left = node0
+        adoptiveParent.right = node1
 
         #insert the new root node/BST with the combined frequency value into the priority queue
         
-
-    return huffmanTree
+    #return the last remaining element in the pq: the root node of the huffman tree
+    return charFreqPQ.dequeue()
     """
+
+def decodeMessageWithTree(binary, tree):
+    # Use the encoding set/tree to decode the message.
+    decodedString = ""
+    currentNode = tree.root
+    maxKeyLength = tree.getHeight()
+    currentKeyLength = 0
+
+    # read every bit in the encoded message
+    for bitIndex in range(len(binary)):
+        # get the bit
+        bit = message[bitIndex]
+
+        currentKeyLength += 1
+        # if the current code/key length not exist in the encoding set (it's longer than any real path),
+        #   then there is a mistake in the encoded message
+        if (currentKeyLength > maxKeyLength):
+            print("There was a mistake in the input message's encoding.")
+
+        # move to the projenitor (character or not)
+        if (bit == "0"):
+            currentNode = currentNode.left
+        else:
+            currentNode = currentNode.right
+
+        # if it's a leaf, add the character to the decoded string and start over
+        if (isLeaf(currentNode)):
+            decodedString += currentNode.char
+            currentNode = tree.root
+
+            currentKeyLength = 0
+
+        return decodedString
 
 #example of encoded_message: “65 3 66 1 67 4 68 2\n1110001011111000101”
 def huffman_decode(encoded_message):
@@ -76,43 +115,7 @@ def huffman_decode(encoded_message):
     #build the huffman tree
     huffmanTree = create_huff_tree(charFreqs)
 
-    #Use the encoding set/tree to decode the message.
-    decodedString = ""
-    """
-    maxKeyLength = huffmanTree.getHeight()
-    currentKeyLength = 0
-    
-    #read every bit in the encoded message
-    for bitIndex in range(len(message)):
-        #get the bit
-        bit = message[bitIndex]
-        
-        currentKeyLength += 1
-        #if the current code/key length not exist in the encoding set (it's longer than any real path),
-        #   then there is a mistake in the encoded message
-        if (currentKeyLength > maxKeyLength):
-            print("There was a mistake in the input message's encoding.")
-        
-        #move to the predecessor (character or not)
-        if (bit == "0"):
-            currentNode = currentNode.left
-        else:
-            currentNode = currentNode.right
-        
-        #if it's a leaf, add the character to the decoded string and start over
-        if (isLeaf(currentNode)):
-            decodedString += currentNode.character
-            currentNode = huffmanTree.root
-            
-            currentKeyLength = 0
-        
-    
-
-
-    #move to the next binary character
-    """
-
-    return decodedString
+    return decodeBinaryWithTree(body, huffmanTree)
 
 
 
