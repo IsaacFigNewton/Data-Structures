@@ -36,16 +36,16 @@ class HuffmanNode:
 
 def cnt_freq(filename):
     #can you open and read a file in the same line?
-    inFile = open(filename, "r").read
+    inFile = open(filename, "r")
+    message = inFile.read()
+    inFile.close()
 
-    #use only the body of the input file, not the header (legend of ascii characters and their binary codes)
-    dividerIndex = inFile.index("\n")
-    message = inFile[0:dividerIndex]
+    print(message)
 
     freqs = [0] * 256
     #increment the frequency (occurrence count) at every character's respective index in the frequency list
     for char in message:
-        freqs[int(char)] += 1
+        freqs[ord(char)] += 1
 
     return freqs
 
@@ -148,24 +148,37 @@ def create_header(freq_list):
     header = ""
     for i in range(len(freq_list)):
         if (freq_list[i] != 0):
-            header += str(i) + " " + str(freq_list[i] + " ")
+            header += str(i) + " " + str(freq_list[i]) + " "
     header = header[0:-1]
 
     return header
 
 def createCode(currentChar, root):
-		if(root == None):
-			return
+    if(root == None):
+        return
 
-        code = ""
-        currentNode = root
-        while (not currentNode.isLeaf()):
-		    if (currentChar < currentNode.char):
-                currentNode = currentNode.left
-                code += "0"
-            else:
-                currentNode = currentNode.right
-                code += "1"
+    code = ""
+    currentNode = root
+    #while the a leaf hasn't been reached
+    while (not currentNode.isLeaf()):
+        #if the currentChar is less than or equal to the character value of the currentNode,
+        #go left
+        if (currentChar <= currentNode.char):
+            currentNode = currentNode.left
+            code += "0"
+        #otherwise, go right
+        else:
+            currentNode = currentNode.right
+            code += "1"
+
+    #return code
+
+    #if the leaf's character is the same as the one the code is being written for, then return it
+    if (currentNode.char == currentChar):
+        return code
+    #otherwise, return an empty string for the current character's code because it doesn't deserve one
+    else:
+        return ""
 
 def create_code(root_node):
     """
@@ -177,14 +190,16 @@ def create_code(root_node):
     codes = [""] * 256
 
     for i in range(len(codes)):
-        codes[i] = createCode(i, root_node, root_node)
+        codes[i] = createCode(i, root_node)
 
     return codes
 
 #open files with
 def huffman_encode(in_file, out_file):
     #can you open and read a file in the same line?
-    message = open(in_file, "r").read
+    inFile = open(in_file, "r")
+    message = inFile.read()
+    inFile.close()
 
     #make a new list of every ascii character (index in list) and its frequency (value at index)
     charFreqs = cnt_freq(in_file)
@@ -193,18 +208,22 @@ def huffman_encode(in_file, out_file):
     huffmanTree = create_huff_tree(charFreqs)
 
     #make a new list of every ascii character (index in list) and their binary encoding (value at index)
-    codes = create_code(huffmanTree.root)
+    codes = create_code(huffmanTree)
 
     #read the message to be encoded and for every character,
     #go to the encoding in the codesLegend
     #and compose an encoded string with the binary code stored there
     encodedMessage = ""
+    print(str(codes))
     for char in message:
-        encodedMessage += codes[int(char)]
+        encodedMessage += codes[ord(char)]# + "BRUV"
 
+    outFile = open(out_file, 'a')
     #write the header to the out_file
-    open(out_file, 'w', create_header(charFreqs))
+    outFile.write(create_header(charFreqs))
     #add a new line
-    open(out_file, 'a', newline='')
+    outFile.write("\n")
+    #open(out_file, 'a', newline='')
     #write the encodedMessage to the out_file
-    open(out_file, 'a', encodedMessage)
+    outFile.write(create_header(encodedMessage))
+    outFile.close()
