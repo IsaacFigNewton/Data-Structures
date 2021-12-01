@@ -4,16 +4,45 @@ import huffman_decode
 
 class MyTestCase(unittest.TestCase):
     def test_cnt_freq(self):
-        self.assertEqual(1, 1)
+        freqs = [0] * 256
+        freqs[65] = 2
+        freqs[66] = 2
+        freqs[67] = 2
+        freqs[68] = 2
+
+        self.assertListEqual(huffman.cnt_freq("abcdabcd.txt"), freqs)
 
     def test_create_huff_tree(self):
-        self.assertEqual(1, 1)
+        freqs = huffman.cnt_freq("abcdabcd.txt")
+        predictedRoot = huffman.create_huff_tree(freqs)
+
+        expectedRoot = huffman.HuffmanNode(8, 65)
+        expectedRoot.left = huffman.HuffmanNode(4, 65)
+        expectedRoot.left.left = huffman.HuffmanNode(2, 65)
+        expectedRoot.left.right = huffman.HuffmanNode(2, 66)
+        expectedRoot.right = huffman.HuffmanNode(4, 67)
+        expectedRoot.right.left = huffman.HuffmanNode(2, 67)
+        expectedRoot.right.right = huffman.HuffmanNode(2, 68)
+
+        self.assertTrue(predictedRoot.equalTo(expectedRoot))
 
     def test_create_code(self):
-        self.assertEqual(1, 1)
+        freqs = huffman.cnt_freq("abcdabcd.txt")
+        root = huffman.create_huff_tree(freqs)
+
+        codes = [""] * 256
+        codes[65] = "00"
+        codes[66] = "01"
+        codes[67] = "10"
+        codes[68] = "11"
+
+        self.assertEqual(huffman.create_code(root), codes)
 
     def test_create_header(self):
-        self.assertEqual(1, 1)
+        freqs = huffman.cnt_freq("abcdabcd.txt")
+        root = huffman.create_huff_tree(freqs)
+
+        self.assertEqual(huffman.create_header(freqs), "65 2 66 2 67 2 68 2")
 
     def test_huffman_encode(self):
         #Empty test file

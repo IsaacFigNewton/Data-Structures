@@ -34,6 +34,32 @@ class HuffmanNode:
             else:
                 return rheight + 1
 
+    def equalTo(self, root):
+        #if the 2 nodes' values are the same:
+        if (self.freq == root.freq and self.char == root.char):
+            #if a leaf has been reached
+            if (self.isLeaf() and root.isLeaf()):
+                return True
+            else:
+                #if both nodes have left and right children
+                if ((self.left != None and root.left != None) and (self.right != None and root.right != None)):
+                    #only return True only if both nodes' children are the same
+                    return self.left.equalTo(root.left) and self.right.equalTo(root.right)
+                #if both nodes only have left children
+                elif ((self.left != None and root.left != None) and (self.right == None and root.right == None)):
+                    #return True if both nodes' left children are the same
+                    return self.left.equalTo(root.left)
+                #if both nodes only have right children
+                elif ((self.left == None and root.left == None) and (self.right != None and root.right != None)):
+                    #return True if both nodes' right children are the same
+                    return self.right.equalTo(root.right)
+                #otherwise, if one node has a different number of children than the other
+                else:
+                    return False
+        #otherwise, if the nodes' values aren't the same
+        else:
+            return False
+
 def cnt_freq(filename):
     #can you open and read a file in the same line?
     inFile = open(filename, "r")
