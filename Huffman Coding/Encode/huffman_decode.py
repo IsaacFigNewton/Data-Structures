@@ -1,9 +1,4 @@
-#return a list of the frequencies of all ascii characters (index is ascii code and value at index is frequency)
-"""
-example:
-    Suppose the file to be encoded contained:   ddddddddddddddddccccccccbbbbaaff
-    Numbers in positions of freq counts:        [97:104] = [2, 4, 8, 16, 0, 2, 0]
-"""
+#I was supposed to use a PQ for composing the huffman tree
 
 class HuffmanNode:
     def __init__(self, freq=0, char=None, left=None, right=None):
@@ -34,20 +29,22 @@ class HuffmanNode:
             else:
                 return rheight + 1
 
-def cnt_freq(filename):
-    #can you open and read a file in the same line?
-    inFile = open(filename, "r")
-    message = inFile.read()
-    inFile.close()
+def parseFreqs(header):
+    #get an array of strings representing the ASCII codes and their frequencies
+    charStuff = header.split(" ")
 
-    print(message)
+    #go through all the characters and their frequencies and convert them from strings to int types
+    charStuff = list(map(int, charStuff))
 
-    freqs = [0] * 256
-    #increment the frequency (occurrence count) at every character's respective index in the frequency list
-    for char in message:
-        freqs[ord(char)] += 1
+    #make a new list of every ascii character (index in list) and its frequency (value at index)
+    charFreqs = [0] * 256
 
-    return freqs
+    #go through all the characters and their frequencies
+    for i in range(0, len(charStuff) - 1, 2):
+        #even indices in charStuff are ASCII codes and odd are their frequencies
+        charFreqs[charStuff[i]] = charStuff[i + 1]
+
+    return charFreqs
 
 #returns true if tree ‘a’ comes before tree ‘b’.
 def comes_before(a, b):
@@ -96,7 +93,7 @@ def create_huff_tree(freq_list):
     #create a list of characters with their nonzero frequencies
     # add stuff to the list as a huffman node with its respective key (frequency) and value (char value)
     nonzeroHuffmanNodeList = []
-    for charValue in range(256):
+    for charValue in range(128):
         if (freq_list[charValue] != 0):
             nonzeroHuffmanNodeList.append(HuffmanNode(freq_list[charValue], charValue))
 
@@ -137,91 +134,66 @@ def create_huff_tree(freq_list):
     #return the last remaining element in the list: the root node of the huffman tree
     return nonzeroHuffmanNodeList[0]
 
-def create_header(freq_list):
+def decodeBinaryWithTree(binary, root):
+    decodedString = ""
+    currentNode = root
+    maxKeyLength = root.height(root)
+    currentKeyLength = 0
+
+    # read every bit in the encoded message
+    for bitIndex in range(len(binary)):
+        bit = binary[bitIndex]
+
+        currentKeyLength += 1
+        # if the current code/key length not exist in the encoding set (it's longer than any real path),
+        #   then there is a mistake in the encoded message
+        if (currentKeyLength > maxKeyLength):
+            print("There was a mistake in the input message's encoding.")
+
+        # move to the projenitor (character or not)
+        if (currentNode.left != None and bit == "0"):
+            currentNode = currentNode.left
+        elif (currentNode.right != None):
+            currentNode = currentNode.right
+
+        # if it's a leaf, add the character to the decoded string and start over
+        if (currentNode.isLeaf()):
+            decodedString += chr(currentNode.char)
+            currentNode = root
+
+            currentKeyLength = 0
+
+    return decodedString
+
+#example of encoded_message: “65 3 66 1 67 4 68 2\n1110001011111000101”
+def huffman_decode(encoded_message):
+    # if there was no encoded message
+    if (len(encoded_message) < 2):
+        return ""
+
+    #separate the head and the body into 2 strings
+    splitMessage = encoded_message.split("\n")
+    header = splitMessage[0]
+    body = splitMessage[1]
+
+    #for debugging
+    #print("encoded message header: " + header)
+    #print("encoded message body: " + body)
+
+    #get the character frequencies
+    charFreqs = parseFreqs(header)
+
     """
-    takes as parameter the list of freqs previously determined from cnt_freq(filename).
-    The create_header function returns a string of the ASCII values and
-    their associated frequencies from the input file text, separated by one space.
-    For example, create_header(freq_list) would return “97 3 98 4 99 2” for the text “aaabbbbcc”
+    #for debugging
+    charString = "characters: ["
+    for i in range(256):
+        charString += str(i) + " "
+    charString = charString[0: -1]
+    print(charString + "]")
+    print("frequencies: " + str(charFreqs))
     """
-
-    header = ""
-    for i in range(len(freq_list)):
-        if (freq_list[i] != 0):
-            header += str(i) + " " + str(freq_list[i]) + " "
-    header = header[0:-1]
-
-    return header
-
-def setCodes(codes, node, currentCode=""):
-    if(node == None):
-        return
-
-    #if a leaf hasn't been reached yet
-    if (not node.isLeaf()):
-        if (node.left != None):
-            #repeat for the left side
-            setCodes(codes, node.left, currentCode + "0")
-
-        if (node.right != None):
-            #repeat for the right side
-            setCodes(codes, node.right, currentCode + "1")
-    else:
-        #if the root node is a leaf (no path has been taken, so currentCode is still empty)
-        if (currentCode == ""):
-            #the only code should be a "1" for that single character value
-            codes[node.char] = "1"
-            return
-
-        codes[node.char] = currentCode
-        return
-
-def create_code(root_node):
-    """
-    traverses the Huffman tree that was passed as an argument and returns an array (using a Phython list) of 256 strings.
-    Use the character’s respective integer ASCII representation as the index into the array,
-    with the resulting Huffman code for thatcharacter stored at that location.
-    Traverse the tree from the root to each leaf node and adding a ’0’ when we go ’left’ and
-    a ’1’ when we go ’right’ constructing a string of 0’s and 1’s.
-    use the built-in ’+’ operator to concatenate strings of ’0’s and ’1’s here.
-    """
-    codes = [""] * 256
-
-    setCodes(codes, root_node)
-
-    return codes
-
-
-#open files with
-def huffman_encode(in_file, out_file):
-    #can you open and read a file in the same line?
-    inFile = open(in_file, "r")
-    message = inFile.read()
-    inFile.close()
-
-    #make a new list of every ascii character (index in list) and its frequency (value at index)
-    charFreqs = cnt_freq(in_file)
 
     #build the huffman tree
-    huffmanTree = create_huff_tree(charFreqs)
+    huffmanTreeRoot = create_huff_tree(charFreqs)
 
-    #make a new list of every ascii character (index in list) and their binary encoding (value at index)
-    codes = create_code(huffmanTree)
-
-    #read the message to be encoded and for every character,
-    #go to the encoding in the codesLegend
-    #and compose an encoded string with the binary code stored there
-    encodedMessage = ""
-    print(str(codes))
-    for char in message:
-        encodedMessage += codes[ord(char)]# + "BRUV"
-    print(encodedMessage)
-
-    outFile = open(out_file, 'w', newline='')
-    #write the header to the out_file
-    outFile.write(create_header(charFreqs))
-    #add a new line
-    outFile.write("\n")
-    #write the encodedMessage to the out_file
-    outFile.write(encodedMessage)
-    outFile.close()
+    return decodeBinaryWithTree(body, huffmanTreeRoot)
