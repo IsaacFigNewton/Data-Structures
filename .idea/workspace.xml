@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="656ff9ba-bce9-4bde-a9f9-81fa1b9fff4a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/queue_array.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/queue_linked_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/stack_array.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/stack_linked_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/test_queue_array.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/test_queue_linked_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/test_stack_array.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Abstract Data Types/test_stack_linked_list.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Huffman Coding/huffman_decode.py" beforeDir="false" />
-    </list>
+    <list default="true" id="656ff9ba-bce9-4bde-a9f9-81fa1b9fff4a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
